@@ -129,7 +129,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${materialSummary}</td>
                     <td style="text-align:center;">${sale.total_weight.toFixed(1)} kg</td>
                     <td style="text-align:right; font-weight:700;">₱${sale.total_amount.toFixed(2)}</td>
-                    <td style="text-align:center;"><button data-action="edit" data-id="${sale.id}">Edit</button></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="icon-btn receipt-btn" data-action="view-receipt" data-id="${sale.id}" title="View Receipt">
+                                <i data-lucide="image"></i>
+                            </button>
+                            <button class="icon-btn" data-action="edit" data-id="${sale.id}" title="Edit">
+                                <i data-lucide="pencil"></i>
+                            </button>
+                            <button class="icon-btn delete" data-action="delete" data-id="${sale.id}" title="Delete">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </td>
                 `;
     
                 const itemsHTML = sale.items.map(m => `
@@ -219,21 +231,21 @@ document.addEventListener('DOMContentLoaded', () => {
             window.showDeleteModal(id);
         } else if (action === 'view-receipt') {
             const allSales = await fetchSales();
-            const sale = allSales.find(s => s.id === id);
-            if (sale && sale.receiptImage) {
+            const sale = allSales.find(s => String(s.id) === String(id));
+            if (sale && sale.receipt_image) {
                 const win = window.open('', '_blank');
                 win.document.write(`<!DOCTYPE html><html><head><title>Receipt - ${sale.partner}</title>
                     <style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a1a;}
                     img{max-width:100%;max-height:100vh;object-fit:contain;border-radius:8px;}</style></head>
-                    <body><img src="${sale.receiptImage}" alt="Receipt for ${sale.partner}"></body></html>`);
+                    <body><img src="${sale.receipt_image}" alt="Receipt for ${sale.partner}"></body></html>`);
             }
         }
     });
 
     // DELETE MODAL 
-    async function showDeleteModal(id) {
+    window.showDeleteModal = async function(id) {
         const allSales = await fetchSales();
-        const sale = allSales.find(s => s.id === id);
+        const sale = allSales.find(s => String(s.id) === String(id));
         if (!sale) return;
 
         if (!document.getElementById('saleDeleteModal')) {
